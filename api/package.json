@@ -2,12 +2,13 @@
   "name": "moood-googleai-auth-proxy",
   "version": "1.0.0",
   "description": "Vercel Functions for Pinterest OAuth Proxy for Moood-GoogleAI Figma Plugin",
-  "dependencies": {
-    "node-fetch": "^3.3.2"
-  },
   "devDependencies": {
     "@types/node": "^20.11.24",
+    "@types/node-fetch": "^2.6.13",
     "@vercel/node": "^3.0.25",
     "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
   }
 }
