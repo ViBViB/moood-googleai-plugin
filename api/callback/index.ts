@@ -1,3 +1,5 @@
+// Forcing a new deploy with the latest changes
+
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import fetch from 'node-fetch';
 
@@ -37,10 +39,12 @@ export default async function (req: VercelRequest, res: VercelResponse) {
     });
 
     if (!tokenResponse.ok) {
-      const errorData = await tokenResponse.json();
-      console.error('Error exchanging code for token:', errorData);
-      return res.redirect(`${PLUGIN_SUCCESS_PAGE_URL}?error=${encodeURIComponent(errorData.error_description || 'Failed to get access token')}`);
-    }
+  // Le decimos a TypeScript que esperamos un objeto con una propiedad opcional 'error_description'
+  const errorData = await tokenResponse.json() as { error_description?: string }; 
+  console.error('Error exchanging code for token:', errorData);
+  // Ahora TypeScript sabe que errorData.error_description es válido.
+  return res.redirect(`${PLUGIN_SUCCESS_PAGE_URL}?error=${encodeURIComponent(errorData.error_description || 'Failed to get access token')}`);
+}
 
     const tokenData: any = await tokenResponse.json();
     const accessToken = tokenData.access_token;
