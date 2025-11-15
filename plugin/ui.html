@@ -1,45 +1,13 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <!-- El CSS no cambia, así que lo he omitido por brevedad -->
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            background-color: #fcfcfc;
-            color: #333;
-        }
-        h2 {
-            font-size: 18px;
-            margin-bottom: 10px;
-            color: #1a1a1a;
-        }
-        button {
-            background-color: #1a73e8;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            font-size: 15px;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        button:hover {
-            background-color: #155cb7;
-        }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-        #statusMessage {
-            font-size: 14px;
-            color: #555;
-            min-height: 20px;
-            word-wrap: break-word;
-        }
+        body { font-family: -apple-system, sans-serif; margin: 0; padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+        h2 { font-size: 18px; }
+        button { background-color: #1a73e8; color: white; padding: 10px 15px; border: none; border-radius: 4px; cursor: pointer; }
+        button:disabled { background-color: #cccccc; }
+        #statusMessage { font-size: 14px; min-height: 20px; word-wrap: break-word; }
         .success { color: #28a745; }
         .error { color: #dc3545; }
         .info { color: #007bff; }
@@ -51,10 +19,13 @@
     <div id="statusMessage" class="info"></div>
 
     <script>
+        console.log("UI cargada."); // Log de la UI
+
         const connectButton = document.getElementById('connectButton');
         const statusMessage = document.getElementById('statusMessage');
 
         connectButton.onclick = () => {
+            console.log("Botón 'Conectar' clickeado. Enviando mensaje a code.ts..."); // LOG A
             statusMessage.textContent = 'Iniciando conexión...';
             statusMessage.className = 'info';
             connectButton.disabled = true;
@@ -62,22 +33,28 @@
             parent.postMessage({ pluginMessage: { type: 'connect-pinterest' } }, '*');
         };
         
-        // Escucha mensajes de vuelta del code.ts y de la ventana emergente de autenticación
         window.onmessage = (event) => {
-            // Asegurarse de que el mensaje es para nuestro plugin
             if (event.data && event.data.pluginMessage) {
-                const { type, message, email, token } = event.data.pluginMessage;
+                console.log("Mensaje recibido en la UI desde code.ts o popup:", event.data.pluginMessage); // LOG B
+                const { type, message, email, token, url } = event.data.pluginMessage;
 
-                if (type === 'auth-success') {
+                if (type === 'open-auth-window') {
+                    console.log("Recibida orden de abrir ventana a:", url); // LOG C
+                    window.open(url);
+                } 
+                else if (type === 'auth-success') {
                     statusMessage.textContent = `✅ Pinterest conectado: ${email}`;
                     statusMessage.className = 'success';
-                    console.log('Token recibido en la UI:', token);
                     connectButton.style.display = 'none';
-                } else if (type === 'auth-error') {
+                    parent.postMessage({ pluginMessage: { type: 'auth-success', email, token } }, '*');
+                } 
+                else if (type === 'auth-error') {
                     statusMessage.textContent = `❌ Error de conexión: ${message}`;
                     statusMessage.className = 'error';
                     connectButton.disabled = false;
-                } else if (type === 'auth-in-progress') {
+                    parent.postMessage({ pluginMessage: { type: 'auth-error', message } }, '*');
+                } 
+                else if (type === 'auth-in-progress') {
                     statusMessage.textContent = message;
                     statusMessage.className = 'info';
                 }

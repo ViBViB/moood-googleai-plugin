@@ -1,32 +1,27 @@
 figma.showUI(__html__, { width: 320, height: 200, title: 'Moood-GoogleAI Connect' });
 
+console.log("Plugin 'code.ts' cargado y UI mostrada.");
+
 figma.ui.onmessage = async (msg) => {
+  console.log("Mensaje recibido en code.ts:", msg); // LOG 1: Ver si llega CUALQUIER mensaje
+
   if (msg.type === 'connect-pinterest') {
-    figma.ui.postMessage({ type: 'auth-in-progress', message: 'Abriendo Pinterest para autorización...' });
+    console.log("Mensaje 'connect-pinterest' detectado. Procesando..."); // LOG 2: Ver si entra al IF
 
-    // *** IMPORTANTE ***
-    // Reemplaza 'YOUR_VERCEL_APP_DOMAIN' con el dominio que te dé Vercel al desplegar tu API.
-    // Por ejemplo: 'https://moood-googleai-auth.vercel.app'
-    const PROXY_URL = 'https://YOUR_VERCEL_APP_DOMAIN'; // ¡Cámbialo!
+    figma.ui.postMessage({ type: 'auth-in-progress', message: 'Construyendo URL de autorización...' });
 
-    // Simulamos un email de usuario por ahora.
-    const userEmail = 'test@moood-googleai.app'; 
+    const PROXY_URL = 'https://moood-googleai-plugin.vercel.app'; // Asegúrate de que este dominio es correcto
+    const userEmail = 'test@moood-googleai.app';
 
-    // Abrir una nueva ventana del navegador para la autenticación de Pinterest
-    // Figma no puede abrir ventanas emergentes directamente, así que le pedimos a la UI que lo haga.
-    // El método más confiable es que la UI abra una nueva pestaña del navegador.
-    // La UI escuchará el 'window.onmessage' de la página de redirección final.
-    figma.showUI(`
-      <script>
-        window.open('${PROXY_URL}/api/login?email=${encodeURIComponent(userEmail)}');
-        
-        window.onmessage = (event) => {
-          if (event.data && event.data.pluginMessage) {
-            // Reenviar el mensaje al plugin principal (code.ts)
-            parent.postMessage({ pluginMessage: event.data.pluginMessage }, '*');
-          }
-        };
-      </script>
-    `, { visible: false }); // Abrimos una UI invisible solo para ejecutar el script
+    const authUrl = `${PROXY_URL}/api/login?email=${encodeURIComponent(userEmail)}`;
+    console.log("URL de autenticación construida:", authUrl); // LOG 3: Ver la URL
+
+    // Le pedimos a la UI que abra la ventana.
+    figma.ui.postMessage({ type: 'open-auth-window', url: authUrl });
+    console.log("Mensaje 'open-auth-window' enviado a la UI."); // LOG 4: Ver si se envía la respuesta
+  }
+
+  if (msg.type === 'auth-success' || msg.type === 'auth-error') {
+     console.log('Resultado de autenticación recibido DE VUELTA en code.ts:', msg);
   }
 };
