@@ -2,8 +2,12 @@
 /node_modules
 
 # Archivos de compilación de TypeScript
-*.js
-*.js.map
+# (Excluyendo el code.js del plugin que sí necesitamos)
+/callback/**/*.js
+/login/**/*.js
+
+# Carpeta de Supabase (no para este deploy)
+/supabase
 
 # Archivos de entorno (si los tuvieras)
 .env
