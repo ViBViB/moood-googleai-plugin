@@ -1,15 +1,17 @@
 # Dependencias
 /node_modules
 
-# Archivos de compilación de TypeScript
-# (Excluyendo el code.js del plugin que sí necesitamos)
-/callback/**/*.js
-/login/**/*.js
+# Archivos y carpetas de Vercel local
+/.vercel
+
+# Archivos de compilación de TypeScript de las funciones
+/api/**/*.js
+/api/**/*.js.map
 
 # Carpeta de Supabase (no para este deploy)
 /supabase
 
-# Archivos de entorno (si los tuvieras)
+# Archivos de entorno
 .env
 
 # Archivos del sistema operativo Mac
