@@ -1,0 +1,12 @@
+# Dependencias
+/node_modules
+
+# Archivos de compilación de TypeScript
+*.js
+*.js.map
+
+# Archivos de entorno (si los tuvieras)
+.env
+
+# Archivos del sistema operativo Mac
+.DS_Store
