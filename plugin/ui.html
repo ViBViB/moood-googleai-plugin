@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            background-color: #fcfcfc;
+            color: #333;
+        }
+        h2 {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #1a1a1a;
+        }
+        button {
+            background-color: #1a73e8;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #155cb7;
+        }
+        button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        #statusMessage {
+            font-size: 14px;
+            color: #555;
+            min-height: 20px;
+            word-wrap: break-word;
+        }
+        .success { color: #28a745; }
+        .error { color: #dc3545; }
+        .info { color: #007bff; }
+    </style>
+</head>
+<body>
+    <h2>Moood-GoogleAI Connect</h2>
+    <button id="connectButton">Conectar con Pinterest</button>
+    <div id="statusMessage" class="info"></div>
+
+    <script>
+        const connectButton = document.getElementById('connectButton');
+        const statusMessage = document.getElementById('statusMessage');
+
+        connectButton.onclick = () => {
+            statusMessage.textContent = 'Iniciando conexión...';
+            statusMessage.className = 'info';
+            connectButton.disabled = true;
+
+            parent.postMessage({ pluginMessage: { type: 'connect-pinterest' } }, '*');
+        };
+        
+        // Escucha mensajes de vuelta del code.ts y de la ventana emergente de autenticación
+        window.onmessage = (event) => {
+            // Asegurarse de que el mensaje es para nuestro plugin
+            if (event.data && event.data.pluginMessage) {
+                const { type, message, email, token } = event.data.pluginMessage;
+
+                if (type === 'auth-success') {
+                    statusMessage.textContent = `✅ Pinterest conectado: ${email}`;
+                    statusMessage.className = 'success';
+                    console.log('Token recibido en la UI:', token);
+                    connectButton.style.display = 'none';
+                } else if (type === 'auth-error') {
+                    statusMessage.textContent = `❌ Error de conexión: ${message}`;
+                    statusMessage.className = 'error';
+                    connectButton.disabled = false;
+                } else if (type === 'auth-in-progress') {
+                    statusMessage.textContent = message;
+                    statusMessage.className = 'info';
+                }
+            }
+        };
+    </script>
+</body>
+</html>
